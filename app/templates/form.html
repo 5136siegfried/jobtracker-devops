@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Nouvelle Candidature</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; background: #f4f4f4; }
+    label { display: block; margin-top: 1em; }
+    input[type="range"] { width: 200px; }
+    .stars { display: inline-block; font-size: 1.2em; }
+  </style>
+  <script>
+    function updateStarLabel(inputId, labelId) {
+      document.getElementById(labelId).innerText = "★".repeat(document.getElementById(inputId).value);
+    }
+  </script>
+</head>
+<body>
+  <h1>Ajouter une candidature</h1>
+  <form method="post">
+    <label>Entreprise: <input name="entreprise" required></label>
+    <label>Poste: <input name="poste" required></label>
+    <label>Date de candidature: <input type="date" name="date_candidature" value="{{ today }}" required></label>
+    <label>Prochaine deadline: <input type="date" name="prochaine_deadline"></label>
+
+    <label>Nom du recruteur: <input name="contact_nom"></label>
+    <label>Email du recruteur: <input type="email" name="contact_email"></label>
+
+    <label>Type de contrat:
+      <select name="type_contrat">
+        <option value="">--Choisir--</option>
+        <option>CDI</option>
+        <option>CDD</option>
+        <option>Freelance</option>
+        <option>Stage</option>
+        <option>Alternance</option>
+        <option>Autre</option>
+      </select>
+    </label>
+
+    <label>Télétravail :
+      <select name="teletravail">
+        <option value="">--Choisir--</option>
+        <option>Aucun</option>
+        <option>Partiel</option>
+        <option>Full Remote</option>
+      </select>
+    </label>
+
+    <label>Salaire (en k€) :
+      min <input type="number" name="salaire_min" min="0" max="100" step="1">
+      max <input type="number" name="salaire_max" min="0" max="100" step="1">
+    </label>
+
+    <label>Intérêt :
+      <input type="range" id="niveau_interet" name="niveau_interet" min="1" max="5" value="3" oninput="updateStarLabel('niveau_interet','label_interet')">
+      <span class="stars" id="label_interet">★★★</span>
+    </label>
+
+    <label>Tech :
+      <input type="range" id="niveau_tech" name="niveau_tech" min="1" max="5" value="3" oninput="updateStarLabel('niveau_tech','label_tech')">
+      <span class="stars" id="label_tech">★★★</span>
+    </label>
+
+    <label>Valeurs :
+      <input type="range" id="ambiance_valeurs" name="ambiance_valeurs" min="1" max="5" value="3" oninput="updateStarLabel('ambiance_valeurs','label_valeurs')">
+      <span class="stars" id="label_valeurs">★★★</span>
+    </label>
+
+    <label>Éthique :
+      <input type="range" id="ethique" name="ethique" min="1" max="5" value="3" oninput="updateStarLabel('ethique','label_ethique')">
+      <span class="stars" id="label_ethique">★★★</span>
+    </label>
+
+    <label>Rémunération :
+      <input type="range" id="remuneration" name="remuneration" min="1" max="5" value="3" oninput="updateStarLabel('remuneration','label_remuneration')">
+      <span class="stars" id="label_remuneration">★★★</span>
+    </label>
+
+    <label>Évolution :
+      <input type="range" id="evolution" name="evolution" min="1" max="5" value="3" oninput="updateStarLabel('evolution','label_evolution')">
+      <span class="stars" id="label_evolution">★★★</span>
+    </label>
+
+    <label>Réputation pro :
+      <input type="range" id="reputation_pro" name="reputation_pro" min="1" max="5" value="3" oninput="updateStarLabel('reputation_pro','label_reputation')">
+      <span class="stars" id="label_reputation">★★★</span>
+    </label>
+
+    <label>Ressenti :
+      <textarea name="ressenti" rows="3" cols="50"></textarea>
+    </label>
+
+    <br>
+    <button type="submit">Ajouter</button>
+  </form>
+</body>
+  <footer style="margin-top: 3em; font-size: 0.9em; text-align: center; color: #666;">
+    🛠️ Un projet open source créé avec 💻 & ☕ par <strong>Siegfried Sekkai</strong><br>
+    Code source dispo ici → <a href="https://github.com/5136Siegfried/jobtracker-devops" target="_blank">github.com/5136Siegfried/jobtracker-devops</a>
+  </footer>
+
+</html>

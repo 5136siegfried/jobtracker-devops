@@ -1,0 +1,175 @@
+/* === Reset & Base === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, sans-serif;
+  background-color: #f9fafb;
+  padding: 2rem;
+  color: #111;
+  line-height: 1.6;
+}
+
+/* === Headings === */
+h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 1.4rem;
+  margin: 2em 0 1em 0;
+  color: #34495e;
+  border-left: 4px solid #3498db;
+  padding-left: 0.5em;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+.grid-1 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 1500px) {
+  .grid-1 {
+    grid-template-columns: 1fr;
+  }
+}
+
+section {
+  margin-top: 0.5rem; /* ou 0 si tu veux zéro espace entre sections */
+  margin-bottom: 1rem; /* tu peux aussi réduire ça à 0.5rem si besoin */
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.routine-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.routine-list li {
+  padding: 0.4rem 1rem;
+  margin-bottom: 0.3rem;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+  font-size: 0.95rem;
+  transition: background-color 0.3s ease;
+}
+
+.routine-list li.active {
+  background-color: #d1e7dd; /* vert léger pour marquer l’activité en cours */
+  font-weight: bold;
+  border-left: 4px solid #198754;
+}
+
+
+/* === Links === */
+a {
+  color: #1a73e8;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* === Lists === */
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+li {
+  margin-bottom: 0.5em;
+}
+
+/* === Tables === */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+  background: #fff;
+}
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #eaeaea;
+  text-align: left;
+}
+th {
+  background-color: #f0f2f5;
+  font-weight: bold;
+}
+tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* === Badges === */
+.badge {
+  font-size: 0.8em;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #ddd;
+  color: #333;
+  text-transform: lowercase;
+}
+.badge.en_attente {
+  background-color: #ffeb3b;
+  color: #000;
+}
+.badge.entretien_realise {
+  background-color: #4caf50;
+  color: #fff;
+}
+.badge.refuse {
+  background-color: #e53935;
+  color: #fff;
+}
+
+/* === Progress Bar === */
+.progress-bar-wrapper {
+  background-color: #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  height: 20px;
+}
+.progress-bar {
+  height: 100%;
+  text-align: center;
+  color: white;
+  background-color: #4caf50;
+  transition: width 0.4s ease-in-out;
+}
+
+/* === Footer === */
+footer {
+  text-align: center;
+  color: #888;
+  margin-top: 4em;
+  font-size: 0.85em;
+}

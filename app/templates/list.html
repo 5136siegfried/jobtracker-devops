@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des candidatures</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; background: #f8f8f8; }
+    table { border-collapse: collapse; width: 100%; background: white; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #eee; }
+    tr:hover { background-color: #f1f1f1; }
+    .badge { display: inline-block; padding: 2px 6px; font-size: 0.8em; border-radius: 4px; background: #ddd; }
+  </style>
+</head>
+<body>
+  <h1>📋 Liste des candidatures</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Entreprise</th>
+        <th>Poste</th>
+        <th>Date</th>
+        <th>Intérêt</th>
+        <th>Contrat</th>
+        <th>TT</th>
+        <th>Deadline</th>
+        <th>État</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in candidatures %}
+      <tr>
+        <td>{{ c.entreprise }}</td>
+        <td>{{ c.poste }}</td>
+        <td>{{ c.date_candidature }}</td>
+        <td>{{ c.niveau_interet }}/5</td>
+        <td>{{ c.type_contrat }}</td>
+        <td>{{ c.teletravail }}</td>
+        <td>{{ c.prochaine_deadline or "-" }}</td>
+        <td><span class="badge">{{ c.etat }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p><a href="/">← Retour au formulaire</a></p>
+</body>
+  <footer style="margin-top: 3em; font-size: 0.9em; text-align: center; color: #666;">
+    🛠️ Un projet open source créé avec 💻 & ☕ par <strong>Siegfried Sekkai</strong><br>
+    Code source dispo ici → <a href="https://github.com/5136Siegfried/jobtracker-devops" target="_blank">github.com/5136Siegfried/jobtracker-devops</a>
+  </footer>
+
+</html>

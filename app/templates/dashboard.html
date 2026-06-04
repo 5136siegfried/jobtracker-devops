@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>JobTracker – Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+<div class="container">
+  <h1>📊 Dashboard – Jobtracker</h1>
+
+  <div class="grid-2">
+    <section>
+      <h2>🔗 Liens rapides</h2>
+      <ul>
+        <li><a href="/form">➕ Ajouter une candidature</a></li>
+        <li><a href="/list">📋 Voir toutes les candidatures</a></li>
+        <li><a href="/compare?e1=Programisto&e2=CleverCloud">⚖️ Comparer deux offres</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🏁 Objectif de la semaine</h2>
+      <p>Candidatures envoyées cette semaine : <strong>{{ stats.cette_semaine }}</strong> / {{ stats.objectif_hebdo }}</p>
+      <div class="progress-bar-wrapper">
+        <div class="progress-bar" style="width: {{ stats.progress }}%;">{{ stats.progress }}%</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="grid-2">
+    <section>
+      <h2>📅 Agenda</h2>
+      <ul>
+        {% for event in agenda %}
+        <li><strong>{{ event.date }}</strong> – {{ event.evenement }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+        <section>
+  <h2>🧭 Routine non négociable</h2>
+  <ul class="routine-list">
+    <li data-start="08:00" data-end="09:00">🛏️ Réveil, café & méditation</li>
+    <li data-start="09:00" data-end="10:00">📬 Postuler activement</li>
+    <li data-start="10:00" data-end="11:00">💪 Sport ou marche</li>
+    <li data-start="11:00" data-end="12:00">🧘‍♂️ Pause détente / lecture</li>
+    <li data-start="14:00" data-end="17:00">💻 Projets / Dév perso</li>
+    <li data-start="17:00" data-end="18:00">📈 Récap + planning du lendemain</li>
+  </ul>
+</section>
+  </div>
+
+  <div class="grid-1">
+
+    <section>
+      <h2>📌 Candidatures actives</h2>
+      <table>
+        <thead>
+          <tr><th>Entreprise</th><th>Poste</th><th>État</th><th>Deadline</th></tr>
+        </thead>
+        <tbody>
+          {% for c in candidatures %}
+          {% if c.etat in ["en_attente", "entretien_realise"] %}
+          <tr>
+            <td>{{ c.entreprise }}</td>
+            <td>{{ c.poste }}</td>
+            <td><span class="badge">{{ c.etat }}</span></td>
+            <td>{{ c.prochaine_deadline or "-" }}</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <div class="grid-2">
+    <section>
+      <h2>📊 Répartition des candidatures par état</h2>
+      <canvas id="etatChart"
+              width="400" height="200"
+              data-labels='{{ stats.etats.keys() | list | tojson }}'
+              data-values='{{ stats.etats.values() | list | tojson }}'>
+      </canvas>
+    </section>
+
+    <section>
+      <h2>📈 Statistiques</h2>
+      <ul>
+        <li>Total candidatures : {{ stats.total }}</li>
+        <li>En attente : {{ stats.en_attente }}</li>
+        <li>Entretiens réalisés : {{ stats.entretien }}</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="grid-2">
+    <section>
+      <h2>📁 Documents</h2>
+      <ul>
+        {% for doc in documents %}
+        <li>📄 <a href="{{ doc.lien }}" target="_blank">{{ doc.nom }}</a> ({{ doc.type }})</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section>
+      <h2>📝 Dernières notes</h2>
+      <ul>
+        {% for note in notes %}
+        <li><strong>{{ note.date }}</strong> – {{ note.sujet }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  <footer class="footer">
+    🛠️ Un projet open source créé avec 💻 & ☕ par <strong>Siegfried Sekkai</strong><br>
+    Code source dispo ici → <a href="https://github.com/5136Siegfried/jobtracker-devops" target="_blank">github.com/5136Siegfried/jobtracker-devops</a>
+  </footer>
+</div>
+
+</body>
+</html>
