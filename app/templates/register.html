@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Register – JobTracker{% endblock %}
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1 class="auth-title">
+        <span class="bracket">[</span>NEW<span class="accent">PROFILE</span><span class="bracket">]</span>
+      </h1>
+      <p class="auth-sub">// créer un compte tracker</p>
+    </div>
+
+    <form method="post" class="auth-form">
+      <div class="field-group">
+        <label class="field-label">USERNAME</label>
+        <input type="text" name="username" class="field-input" placeholder="votre_pseudo" autofocus required>
+      </div>
+      <div class="field-group">
+        <label class="field-label">PASSWORD <span class="field-hint">(6 chars min)</span></label>
+        <input type="password" name="password" class="field-input" placeholder="••••••••" required minlength="6">
+      </div>
+      <button type="submit" class="btn-primary btn-full">
+        <span class="btn-label">CRÉER LE PROFIL</span>
+        <span class="btn-arrow">→</span>
+      </button>
+    </form>
+
+    <p class="auth-switch">
+      Déjà un compte ?
+      <a href="{{ url_for('login') }}" class="link-accent">Se connecter</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

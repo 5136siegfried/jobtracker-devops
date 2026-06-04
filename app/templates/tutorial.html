@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}Tutoriel – JobTracker{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">
+    <span class="title-line">? TUTORIEL</span>
+    <span class="title-sub">// guide d'utilisation</span>
+  </h1>
+</div>
+
+<div class="tuto-grid">
+
+  <!-- Sommaire -->
+  <aside>
+    <section class="card">
+      <div class="card-header"><h2 class="card-title">Sommaire</h2></div>
+      <nav class="tuto-toc">
+        <a href="#start">① Démarrer</a>
+        <a href="#candidature">② Ajouter une candidature</a>
+        <a href="#etat">③ Gérer les états</a>
+        <a href="#scores">④ Comprendre les scores</a>
+        <a href="#calendar">⑤ Calendrier</a>
+        <a href="#themes">⑥ Thèmes</a>
+        <a href="#deploy">⑦ Déploiement VPS</a>
+        <a href="#faq">⑧ FAQ</a>
+      </nav>
+    </section>
+  </aside>
+
+  <!-- Contenu -->
+  <div>
+
+    <section class="card tuto-section" id="start">
+      <div class="card-header"><h2 class="card-title">◈ ① Démarrer</h2></div>
+      <div class="tuto-step">
+        <span class="tuto-step-num">1</span>
+        <p class="tuto-step-text">
+          Va sur <a href="{{ url_for('register') }}">/register</a> et crée ton compte.
+          Chaque utilisateur a ses propres candidatures — personne d'autre ne les voit.
+        </p>
+      </div>
+      <div class="tuto-step">
+        <span class="tuto-step-num">2</span>
+        <p class="tuto-step-text">
+          Connecte-toi. Tu arrives sur le <strong>Dashboard</strong> qui résume tout :
+          stats de la semaine, objectif hebdo, alertes deadlines.
+        </p>
+      </div>
+      <div class="tuto-step">
+        <span class="tuto-step-num">3</span>
+        <p class="tuto-step-text">
+          Clique <span class="kbd">✦ Nouvelle</span> dans la barre de navigation pour
+          ajouter ta première candidature.
+        </p>
+      </div>
+    </section>
+
+    <section class="card tuto-section" id="candidature">
+      <div class="card-header"><h2 class="card-title">◧ ② Ajouter une candidature</h2></div>
+      <p style="margin-bottom:.75rem;font-size:.9rem;color:var(--text)">
+        Le formulaire capture tout ce qui compte pour une décision éclairée :
+      </p>
+      <ul>
+        <li><strong>Entreprise / Poste</strong> — obligatoires</li>
+        <li><strong>Deadline</strong> — déclenche les alertes ⚡ (48h) et ⚠ (dépassé)</li>
+        <li><strong>Contrat / Télétravail / Salaire</strong> — pour filtrer ensuite</li>
+        <li><strong>Contact recruteur</strong> — nom + email pour les relances</li>
+        <li><strong>7 critères d'évaluation</strong> notés de 1 à 5 (sliders)</li>
+        <li><strong>Ressenti & notes</strong> — champ libre, visible uniquement par toi</li>
+      </ul>
+    </section>
+
+    <section class="card tuto-section" id="etat">
+      <div class="card-header"><h2 class="card-title">◈ ③ Gérer les états</h2></div>
+      <p style="margin-bottom:.75rem;font-size:.9rem;color:var(--text)">
+        Tu peux changer l'état <strong>sans recharger la page</strong> depuis la liste
+        ou le dashboard — il suffit de changer le menu déroulant. La bordure verte
+        confirme la sauvegarde.
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem">
+        {% for e, desc in [
+          ('en_attente',        'Candidature envoyée, pas de réponse'),
+          ('attente_reponse',   'Relancé, en attente'),
+          ('entretien_planifie','Entretien calé'),
+          ('entretien_realise', 'Entretien passé'),
+          ('test_technique',    'Test/cas pratique en cours'),
+          ('offre_recue',       'Offre reçue, à décider'),
+          ('accepte',           '🎉 Accepté'),
+          ('refuse',            'Refus (eux ou toi)'),
+          ('ghosted',           'Plus de nouvelles'),
+        ] %}
+        <span class="badge etat-badge etat-{{ e }}" title="{{ desc }}">{{ e | replace('_',' ') }}</span>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="card tuto-section" id="scores">
+      <div class="card-header"><h2 class="card-title">◧ ④ Comprendre les scores</h2></div>
+      <p style="font-size:.9rem;color:var(--text);margin-bottom:.5rem">
+        Chaque candidature est évaluée sur 6 axes (1–5).
+        Le <strong>score global</strong> est la moyenne — visible dans la liste et sur la page détail.
+      </p>
+      <ul>
+        <li><strong>Tech</strong> — niveau technique de l'équipe / stack perçu</li>
+        <li><strong>Valeurs</strong> — ambiance, culture d'entreprise</li>
+        <li><strong>Éthique</strong> — impact du produit, pratiques RH</li>
+        <li><strong>Rémunération</strong> — rapport salaire / marché</li>
+        <li><strong>Évolution</strong> — perspectives de progression</li>
+        <li><strong>Réputation pro</strong> — valeur sur le CV, réseau</li>
+      </ul>
+      <p style="font-size:.85rem;color:var(--text-muted);margin-top:.5rem">
+        L'<strong>intérêt</strong> (7ème slider) n'entre pas dans le score global —
+        c'est une note subjective séparée pour trier la liste.
+      </p>
+    </section>
+
+    <section class="card tuto-section" id="calendar">
+      <div class="card-header"><h2 class="card-title">◫ ⑤ Calendrier</h2></div>
+      <div class="tuto-step">
+        <span class="tuto-step-num">1</span>
+        <p class="tuto-step-text">
+          Le calendrier affiche automatiquement les <strong>dates de candidature</strong>
+          (✉) et les <strong>deadlines</strong> (⏰) de toutes tes candidatures.
+        </p>
+      </div>
+      <div class="tuto-step">
+        <span class="tuto-step-num">2</span>
+        <p class="tuto-step-text">
+          Toggle <span class="kbd">◫ Grille</span> / <span class="kbd">◧ Liste</span>
+          selon ta préférence. La vue liste montre uniquement les événements futurs.
+        </p>
+      </div>
+      <div class="tuto-step">
+        <span class="tuto-step-num">3</span>
+        <p class="tuto-step-text">
+          Clique sur n'importe quel événement pour aller directement à la page détail
+          de la candidature concernée.
+        </p>
+      </div>
+    </section>
+
+    <section class="card tuto-section" id="themes">
+      <div class="card-header"><h2 class="card-title">◈ ⑥ Thèmes</h2></div>
+      <p style="font-size:.9rem;color:var(--text);margin-bottom:.75rem">
+        Les 3 boutons ronds dans la navbar (en haut à droite) changent le thème.
+        Le choix est sauvegardé dans ta session.
+      </p>
+      <ul>
+        <li><strong>Cyber</strong> — dark, vert/cyan, scanlines. Pour les nuits de code.</li>
+        <li><strong>Zen</strong> — blanc cassé, tons naturels, wabi-sabi. Pour les candidatures du dimanche matin.</li>
+        <li><strong>Kirby</strong> — violet profond, rose / vert lime. Pour quand tu veux de la bonne humeur.</li>
+      </ul>
+    </section>
+
+    <section class="card tuto-section" id="deploy">
+      <div class="card-header"><h2 class="card-title">◧ ⑦ Déploiement VPS</h2></div>
+      <p style="font-size:.9rem;color:var(--text);margin-bottom:.75rem">
+        L'app tourne dans Docker, la DB SQLite est persistée dans un volume.
+      </p>
+      <pre class="kbd" style="display:block;padding:.75rem;white-space:pre-wrap;font-size:.8rem;line-height:1.7">
+# Lancer en production
+SECRET_KEY=une-cle-robuste docker compose up -d
+
+# Nginx reverse proxy (exemple)
+location / {
+    proxy_pass http://localhost:8001;
+    proxy_set_header Host $host;
+}
+
+# Backup DB
+docker exec jobtracker sqlite3 /data/jobtracker.db .dump > backup.sql
+      </pre>
+    </section>
+
+    <section class="card tuto-section" id="faq">
+      <div class="card-header"><h2 class="card-title">◈ ⑧ FAQ</h2></div>
+      <ul>
+        <li style="margin-bottom:.75rem">
+          <strong>J'ai perdu mon mot de passe</strong><br>
+          <span style="color:var(--text-muted);font-size:.88rem">
+            Lance depuis le dossier <span class="kbd">app/</span> :
+            <code class="kbd">python -c "from app import create_app; from models import db,User; app=create_app(); app.app_context().push(); u=User.query.filter_by(username='ton_pseudo').first(); u.set_password('nouveau'); db.session.commit()"</code>
+          </span>
+        </li>
+        <li style="margin-bottom:.75rem">
+          <strong>Le thème ne se sauvegarde pas</strong><br>
+          <span style="color:var(--text-muted);font-size:.88rem">
+            Vérifie que la colonne <span class="kbd">theme</span> existe dans ta DB.
+            La migration douce est automatique au démarrage, mais si tu as une vieille DB
+            sans cette colonne, relance simplement l'app.
+          </span>
+        </li>
+        <li>
+          <strong>Puis-je importer mes anciennes candidatures YAML ?</strong><br>
+          <span style="color:var(--text-muted);font-size:.88rem">
+            Pas encore de script d'import intégré, mais c'est simple à faire en Python
+            avec <span class="kbd">yaml.safe_load</span> + boucle sur le modèle
+            <span class="kbd">Candidature</span>.
+          </span>
+        </li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+
+{% endblock %}

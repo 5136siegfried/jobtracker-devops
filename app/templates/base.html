@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="{{ current_user.theme if current_user.is_authenticated else 'cyber' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}JobTracker DevOps{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<div class="scan-line"></div>
+
+{% if current_user.is_authenticated %}
+<nav class="navbar">
+  <a href="{{ url_for('dashboard') }}" class="nav-brand">
+    <span class="brand-bracket">[</span>JOB<span class="brand-accent">TRACKER</span><span class="brand-bracket">]</span>
+  </a>
+  <div class="nav-links">
+    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+      <span class="nav-icon">◈</span> Dashboard
+    </a>
+    <a href="{{ url_for('list_candidatures') }}" class="nav-link {% if request.endpoint == 'list_candidatures' %}active{% endif %}">
+      <span class="nav-icon">◧</span> Candidatures
+    </a>
+    <a href="{{ url_for('cal') }}" class="nav-link {% if request.endpoint == 'cal' %}active{% endif %}">
+      <span class="nav-icon">◫</span> Calendrier
+    </a>
+    <a href="{{ url_for('form') }}" class="nav-link {% if request.endpoint == 'form' %}active{% endif %}">
+      <span class="nav-icon">✦</span> Nouvelle
+    </a>
+    <a href="{{ url_for('tutorial') }}" class="nav-link {% if request.endpoint == 'tutorial' %}active{% endif %}">
+      <span class="nav-icon">?</span> Tuto
+    </a>
+  </div>
+  <div class="nav-user">
+    <div class="theme-switcher" title="Changer le thème">
+      <button class="theme-btn {% if current_user.theme == 'cyber' %}active{% endif %}"
+              data-theme="cyber" title="Cyber"></button>
+      <button class="theme-btn {% if current_user.theme == 'zen' %}active{% endif %}"
+              data-theme="zen" title="Zen"></button>
+      <button class="theme-btn {% if current_user.theme == 'kirby' %}active{% endif %}"
+              data-theme="kirby" title="Kirby"></button>
+    </div>
+    <span class="user-tag">// {{ current_user.username }}</span>
+    <a href="{{ url_for('logout') }}" class="btn-ghost-sm">logout</a>
+  </div>
+</nav>
+{% endif %}
+
+<main class="main-content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for cat, msg in messages %}
+          <div class="flash flash-{{ cat }}">
+            <span class="flash-icon">{% if cat == 'error' %}⚠{% else %}✓{% endif %}</span>
+            {{ msg }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <span class="footer-text">
+    &lt;/&gt; <a href="https://github.com/5136Siegfried/jobtracker-devops" target="_blank">5136Siegfried</a>
+    &nbsp;·&nbsp; JobTracker DevOps
+  </span>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,100 +1,96 @@
-# 🧪 jobtracker-devops
+# JobTracker DevOps
 
-![Build](https://img.shields.io/badge/build-manual-blue)
-![State](https://img.shields.io/badge/state-beta-important)
-![License](https://img.shields.io/badge/license-MIT-green)
-![DevOps](https://img.shields.io/badge/IaC-YAML-informational)
-![Pipeline](https://img.shields.io/badge/pipeline-human--driven-ff69b4)
-![Status](https://img.shields.io/badge/mood-slightly%20overqualified-yellow)
-![Coffee](https://img.shields.io/badge/caffeine-∞mg-black)
+Outil de suivi de candidatures/alternances/freelance — multi-profils, self-hosted.
 
-```bash
-       __        __   ______                    __
-      / /____   / /_ /_  __/_____ ____ _ _____ / /__ ___   _____
- __  / // __ \ / __ \ / /  / ___// __ `// ___// //_// _ \ / ___/
-/ /_/ // /_/ // /_/ // /  / /   / /_/ // /__ / ,<  /  __// /
-\____/ \____//_.___//_/  /_/    \__,_/ \___//_/|_| \___//_/
+## Stack
 
-   🧠  Tu as des chasseurs de tête aux baskets mon chum ?
-          → T'es au bon endroit. On versionne nos refus. Prépare ta GLACE.
+```
+Flask 3.1 + SQLAlchemy + SQLite
+Flask-Login (sessions)
+Werkzeug (hash passwords)
+Docker (image ~150MB)
 ```
 
-╔═════════════════════════════════════════════╗
-║        jobtracker-devops (YAML FTW)         ║
-╠═════════════════════════════════════════════╣
-║  • track • compare • plan • version • win   ║
-╚═════════════════════════════════════════════╝
-
-Un pipeline Git pour suivre tes candidatures comme un vrai ingénieur SRE : versionné, lisible, scoré, et potentiellement observable en prod (si tu trouves un CDI avant).
-
-> 📁 "Candidatures.yaml or die trying."
-
----
-
-## 📌 Pourquoi ce repo ?
-
-Parce qu’un fichier Excel, c’est bien... jusqu’à ce que tu sois DevOps.
-Ici, tu déclares tes candidatures comme une stack Kubernetes : propre, modulaire, et documentée.
-
----
-
-## 🚀 Features
-
-- 🔎 **Suivi YAML-first** : entreprise, poste, contacts, intérêt, critères éthiques, deadlines, etc.
-- 🗓️ **Agenda intégré** : entretiens, relances, décisions critiques (avec café).
-- 📊 **Comparateur d’offres** : multicritère (tech, valeurs, $$$, vibe).
-- 📁 **Pool documentaire** : CV, lettres, portfolios… le tout linké.
-- 🤖 **Ready for GPT scraping** (bientôt) : parsing automatique d’offres.
-- 🧬 **Modulaire** : versionnable, diffable, diffusable.
-- 🕶️ **Ne tracke pas ta vie, juste ton avenir.**
-
----
-
-## 🧱 Structure du dépôt
+## Lancement rapide
 
 ```bash
-jobtracker-devops/
-├── candidates.sample.yaml       # Ton fichier de démo safe pour la prod publique
-├── .gitignore                   # Ton vrai YAML est en local (privacy FTW)
-├── scripts/
-│   ├── generate_dashboard.py    # À venir : Markdown / HTML dashboard
-├── docs/
-│   ├── CV_DevOps_Sample.pdf     # Exemples fictifs
-├── README.md
-├── LICENSE (MIT)
+# Dev local
+pip install -r requirements.txt
+cd app
+python app.py
+
+# Production Docker
+docker compose up -d
+
+# Avec clé secrète custom
+SECRET_KEY=votre-cle-ici docker compose up -d
+```
+
+# User et password
+```bash
+# User
+cd jobtracker/app
+python -c "
+from app import create_app
+from models import db, User
+app = create_app()
+with app.app_context():
+    users = User.query.all()
+    print([u.username for u in users])
+"
+# password
+cd jobtracker/app
+python -c "
+from app import create_app
+from models import db, User
+app = create_app()
+with app.app_context():
+    u = User.query.filter_by(username='sieg').first()
+    u.set_password('nouveau_mdp')
+    db.session.commit()
+    print('Done')
+"
+```
+
+## Déploiement VPS (nginx + Docker)
+
+```nginx
+# /etc/nginx/sites-available/jobtracker
+server {
+    server_name jobtracker.yourdomain.com;
+    location / {
+        proxy_pass http://localhost:8001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
 ```
 
 ```bash
-$ ./scripts/apply.sh
-> applying to all jobs in candidates.yaml...
-> error: human interaction required
+certbot --nginx -d jobtracker.yourdomain.com
 ```
 
----
-
-### 🧬 3. **Graph Mermaid.js**
-
-Dans le README ou une page à part :
-
-```markdown
-```mermaid
-flowchart LR
-  A[Repéré une offre] --> B[Ajout YAML]
-  B --> C[Évaluation multi-critères]
-  C --> D{Entretien ?}
-  D -->|Oui| E[Agenda updated]
-  D -->|Non| F[Relance automatisée]
-  E --> G[Comparaison]
-  F --> G
-  G --> H[Décision finale]
-  H --> I[Git commit --sign-off]
-
----
-
-### 🔁 4. **Alias Git custom pour brag**
-Dans une section « Dev Setup » :
+## Backup DB
 
 ```bash
-alias jobpush='git add . && git commit -m "feat(job): update pipeline" && git push'
-alias refreshbrain='caffeine.sh && clear && echo "Remember: you are the pipeline."'
+# Backup manuel
+docker exec jobtracker sqlite3 /data/jobtracker.db .dump > backup_$(date +%Y%m%d).sql
+
+# Ou rsync du volume
+rsync -avz /var/lib/docker/volumes/jobtracker_jobtracker_data/ ./backups/
 ```
+
+## Features
+
+- Auth multi-users (login/register, passwords hashés bcrypt)
+- Dashboard : stats, objectif hebdo, alertes deadline
+- Candidatures : CRUD complet, filtres, tri
+- Mise à jour état **inline sans rechargement** (AJAX PATCH)
+- Badges deadline urgente (⚡ <48h) et dépassée (⚠)
+- Score global calculé (moyenne 6 critères)
+- Detail page avec barres de scores visuelles
+- Style cyberpunk dark cohérent (Share Tech Mono + Exo 2)
+
+## Crédits
+
+Créé par [Siegfried Sekkai](https://github.com/5136Siegfried) — 5136.fr

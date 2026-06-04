@@ -1,0 +1,19 @@
+services:
+  jobtracker:
+    build: .
+    container_name: jobtracker
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    volumes:
+      - jobtracker_data:/data
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - DATABASE_URL=sqlite:////data/jobtracker.db
+    labels:
+      # Optionnel : intégration Traefik si tu l'as sur ton VPS
+      - "traefik.enable=false"
+
+volumes:
+  jobtracker_data:
+    driver: local

@@ -1,51 +1,78 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const etatChartElement = document.getElementById('etatChart');
+/* JobTracker DevOps – script.js */
 
-  if (etatChartElement) {
-    const data = {
-      labels: JSON.parse(etatChartElement.dataset.labels),
-      datasets: [{
-        label: 'Nombre de candidatures',
-        data: JSON.parse(etatChartElement.dataset.values),
-        backgroundColor: [
-          '#42a5f5', '#66bb6a', '#ffa726', '#ef5350', '#ab47bc', '#26c6da'
-        ]
-      }]
-    };
+document.addEventListener('DOMContentLoaded', () => {
 
-    const config = {
-      type: 'bar',
-      data: data,
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { stepSize: 1 }
+  // ── Inline état update via AJAX ──────────────────────────
+  document.querySelectorAll('.etat-select').forEach(sel => {
+    sel.addEventListener('change', async () => {
+      const cid  = sel.dataset.cid;
+      const etat = sel.value;
+      try {
+        const res = await fetch(`/api/candidature/${cid}/etat`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ etat })
+        });
+        if (res.ok) {
+          sel.classList.add('saved');
+          setTimeout(() => sel.classList.remove('saved'), 1200);
+          const row   = sel.closest('.cand-row, tr');
+          const badge = row && row.querySelector('.etat-badge');
+          if (badge) {
+            badge.className = `badge etat-badge etat-${etat}`;
+            badge.textContent = etat.replace(/_/g, ' ');
           }
+        } else {
+          sel.classList.add('error-flash');
+          setTimeout(() => sel.classList.remove('error-flash'), 1000);
         }
+      } catch (err) {
+        sel.classList.add('error-flash');
+        setTimeout(() => sel.classList.remove('error-flash'), 1000);
       }
-    };
-
-    new Chart(etatChartElement, config);
-  }
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-  document.querySelectorAll(".routine-list li").forEach(item => {
-    const startParts = item.dataset.start.split(":").map(Number);
-    const endParts = item.dataset.end.split(":").map(Number);
-    const startMinutes = startParts[0] * 60 + startParts[1];
-    const endMinutes = endParts[0] * 60 + endParts[1];
-
-    if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {
-      item.classList.add("active");
-    }
+    });
   });
+
+  // ── Theme switcher ───────────────────────────────────────
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const theme = btn.dataset.theme;
+      try {
+        const res = await fetch('/api/theme', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme })
+        });
+        if (res.ok) {
+          document.documentElement.setAttribute('data-theme', theme);
+          document.querySelectorAll('.theme-btn').forEach(b =>
+            b.classList.toggle('active', b.dataset.theme === theme)
+          );
+        }
+      } catch(e) { console.error('Theme switch failed', e); }
+    });
+  });
+
+  // ── Auto-dismiss flash messages ──────────────────────────
+  document.querySelectorAll('.flash').forEach(el => {
+    setTimeout(() => {
+      el.style.transition = 'opacity 0.4s';
+      el.style.opacity    = '0';
+      setTimeout(() => el.remove(), 400);
+    }, 3500);
+  });
+
+  // ── Routine : highlight élément actif ────────────────────
+  function highlightRoutine() {
+    const now  = new Date();
+    const hhmm = now.getHours() * 60 + now.getMinutes();
+    document.querySelectorAll('.routine-list li[data-start]').forEach(li => {
+      const [sh, sm] = li.dataset.start.split(':').map(Number);
+      const [eh, em] = li.dataset.end.split(':').map(Number);
+      li.classList.toggle('active', hhmm >= sh*60+sm && hhmm < eh*60+em);
+    });
+  }
+  highlightRoutine();
+  setInterval(highlightRoutine, 60000);
+
 });

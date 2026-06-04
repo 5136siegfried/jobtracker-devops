@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Calendrier – JobTracker{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="cal-header" style="flex:1">
+    <div class="cal-nav">
+      <a href="{{ url_for('cal', year=prev.year, month=prev.month) }}" class="btn-ghost">←</a>
+      <span class="cal-title">{{ month_name }} {{ year }}</span>
+      <a href="{{ url_for('cal', year=next.year, month=next.month) }}" class="btn-ghost">→</a>
+      <a href="{{ url_for('cal') }}" class="btn-ghost-sm">aujourd'hui</a>
+    </div>
+    <div class="cal-view-toggle">
+      <button class="view-btn active" id="btn-grid" onclick="switchView('grid')">◫ Grille</button>
+      <button class="view-btn" id="btn-list" onclick="switchView('list')">◧ Liste</button>
+    </div>
+  </div>
+</div>
+
+<!-- LÉGENDE -->
+<div style="display:flex; gap:1rem; margin-bottom:1rem; flex-wrap:wrap;">
+  <span class="cal-event type-candidature" style="position:static;display:inline-block;width:auto">✉ Candidature envoyée</span>
+  <span class="cal-event type-deadline" style="position:static;display:inline-block;width:auto">⏰ Deadline</span>
+  <span class="cal-event type-deadline overdue" style="position:static;display:inline-block;width:auto">⚠ Dépassée</span>
+</div>
+
+<!-- VUE GRILLE -->
+<section class="card" id="view-grid">
+  <table class="cal-grid">
+    <thead>
+      <tr>
+        {% for day in ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'] %}
+        <th>{{ day }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for week in cal_matrix %}
+      <tr>
+        {% for day in week %}
+        <td class="cal-cell
+            {% if day == 0 %}other-month{% endif %}
+            {% if day == today.day and year == today.year and month == today.month %}today-cell{% endif %}">
+          {% if day != 0 %}
+            <span class="cal-day-num">{{ day }}</span>
+            {% for ev in events_by_day.get(day, []) %}
+              <a href="{{ url_for('detail', cid=ev.cid) }}"
+                 class="cal-event type-{{ ev.type }} {% if ev.overdue %}overdue{% endif %}"
+                 title="{{ ev.label }}">
+                {{ ev.label }}
+              </a>
+            {% endfor %}
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<!-- VUE LISTE -->
+<section class="card" id="view-list" style="display:none">
+  {% if upcoming %}
+  <div class="cal-list">
+    {% for ev in upcoming %}
+    <a href="{{ url_for('detail', cid=ev.cid) }}" class="cal-list-item">
+      <span class="cal-list-date">{{ ev.date.strftime('%d %b %Y') }}</span>
+      <span class="cal-list-label">{{ ev.label }}</span>
+      <span class="cal-list-tag type-{{ ev.type }} {% if ev.overdue %}overdue{% endif %}">
+        {{ 'deadline' if ev.type == 'deadline' else 'envoyée' }}
+      </span>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p class="empty-icon">◫</p>
+    <p>Aucun événement à venir ce mois-ci.</p>
+  </div>
+  {% endif %}
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function switchView(v) {
+  document.getElementById('view-grid').style.display = v === 'grid' ? '' : 'none';
+  document.getElementById('view-list').style.display = v === 'list' ? '' : 'none';
+  document.getElementById('btn-grid').classList.toggle('active', v === 'grid');
+  document.getElementById('btn-list').classList.toggle('active', v === 'list');
+  localStorage.setItem('cal_view', v);
+}
+// Restore last view
+const saved = localStorage.getItem('cal_view');
+if (saved && saved !== 'grid') switchView(saved);
+</script>
+{% endblock %}

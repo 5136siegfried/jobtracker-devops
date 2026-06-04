@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}{{ c.entreprise }} – JobTracker{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">
+    <span class="title-line">{{ c.entreprise }}</span>
+    <span class="title-sub">// {{ c.poste }}</span>
+  </h1>
+  <div class="header-actions">
+    <a href="{{ url_for('edit', cid=c.id) }}" class="btn-ghost">✎ Éditer</a>
+    <a href="{{ url_for('list_candidatures') }}" class="btn-ghost">← Retour</a>
+  </div>
+</div>
+
+{% if c.deadline_depassee %}
+<div class="alert-banner alert-banner--danger">
+  <span class="alert-icon">⚠</span> Deadline dépassée — relance ou clôture à envisager
+</div>
+{% elif c.deadline_urgente %}
+<div class="alert-banner">
+  <span class="alert-icon">⚡</span> Deadline dans moins de 48h
+</div>
+{% endif %}
+
+<div class="detail-grid">
+
+  <!-- Infos -->
+  <section class="card">
+    <h2 class="card-title">◈ Infos</h2>
+    <dl class="detail-list">
+      <dt>État</dt>
+      <dd>
+        <select class="etat-select" data-cid="{{ c.id }}">
+          {% for e in ['en_attente','attente_reponse','entretien_planifie','entretien_realise','test_technique','offre_recue','accepte','refuse','ghosted'] %}
+          <option value="{{ e }}" {% if c.etat == e %}selected{% endif %}>{{ e | replace('_',' ') }}</option>
+          {% endfor %}
+        </select>
+      </dd>
+      <dt>Contrat</dt><dd>{{ c.type_contrat or '–' }}</dd>
+      <dt>Télétravail</dt><dd>{{ c.teletravail or '–' }}</dd>
+      <dt>Salaire</dt>
+      <dd>
+        {% if c.salaire_min or c.salaire_max %}
+          {{ c.salaire_min }}k – {{ c.salaire_max }}k €
+        {% else %}–{% endif %}
+      </dd>
+      <dt>Date candidature</dt><dd class="mono">{{ c.date_candidature.strftime('%d/%m/%Y') }}</dd>
+      <dt>Deadline</dt>
+      <dd class="mono {% if c.deadline_depassee %}text-overdue{% elif c.deadline_urgente %}text-urgent{% endif %}">
+        {{ c.prochaine_deadline.strftime('%d/%m/%Y') if c.prochaine_deadline else '–' }}
+      </dd>
+    </dl>
+  </section>
+
+  <!-- Contact -->
+  <section class="card">
+    <h2 class="card-title">◧ Contact</h2>
+    <dl class="detail-list">
+      <dt>Nom</dt><dd>{{ c.contact_nom or '–' }}</dd>
+      <dt>Email</dt>
+      <dd>
+        {% if c.contact_email %}
+          <a href="mailto:{{ c.contact_email }}" class="link-accent">{{ c.contact_email }}</a>
+        {% else %}–{% endif %}
+      </dd>
+    </dl>
+  </section>
+
+  <!-- Scores radar -->
+  <section class="card">
+    <h2 class="card-title">◈ Scores <span class="score-global-badge">{{ c.score_global }}/5</span></h2>
+    <div class="score-bars">
+      {% set scores = [
+        ('Tech', c.niveau_tech),
+        ('Valeurs', c.ambiance_valeurs),
+        ('Éthique', c.ethique),
+        ('Rémunération', c.remuneration),
+        ('Évolution', c.evolution),
+        ('Réputation', c.reputation_pro),
+      ] %}
+      {% for label, val in scores %}
+      <div class="score-bar-row">
+        <span class="score-bar-label">{{ label }}</span>
+        <div class="score-bar-track">
+          <div class="score-bar-fill" style="width: {{ (val / 5) * 100 }}%"></div>
+        </div>
+        <span class="score-bar-val">{{ val }}/5</span>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Ressenti & notes -->
+  <section class="card">
+    <h2 class="card-title">◧ Ressenti</h2>
+    <p class="detail-text">{{ c.ressenti or '–' }}</p>
+    {% if c.notes %}
+    <h2 class="card-title" style="margin-top:1rem">◈ Notes internes</h2>
+    <p class="detail-text mono-light">{{ c.notes }}</p>
+    {% endif %}
+  </section>
+
+</div>
+
+<!-- Danger zone -->
+<div class="danger-zone">
+  <form method="post" action="{{ url_for('delete', cid=c.id) }}"
+        onsubmit="return confirm('Supprimer définitivement {{ c.entreprise }} ?')">
+    <button type="submit" class="btn-danger">✕ Supprimer cette candidature</button>
+  </form>
+</div>
+
+{% endblock %}

@@ -1,52 +1,120 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Liste des candidatures</title>
-  <style>
-    body { font-family: sans-serif; padding: 2em; background: #f8f8f8; }
-    table { border-collapse: collapse; width: 100%; background: white; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background: #eee; }
-    tr:hover { background-color: #f1f1f1; }
-    .badge { display: inline-block; padding: 2px 6px; font-size: 0.8em; border-radius: 4px; background: #ddd; }
-  </style>
-</head>
-<body>
-  <h1>📋 Liste des candidatures</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>Entreprise</th>
-        <th>Poste</th>
-        <th>Date</th>
-        <th>Intérêt</th>
-        <th>Contrat</th>
-        <th>TT</th>
-        <th>Deadline</th>
-        <th>État</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for c in candidatures %}
-      <tr>
-        <td>{{ c.entreprise }}</td>
-        <td>{{ c.poste }}</td>
-        <td>{{ c.date_candidature }}</td>
-        <td>{{ c.niveau_interet }}/5</td>
-        <td>{{ c.type_contrat }}</td>
-        <td>{{ c.teletravail }}</td>
-        <td>{{ c.prochaine_deadline or "-" }}</td>
-        <td><span class="badge">{{ c.etat }}</span></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <p><a href="/">← Retour au formulaire</a></p>
-</body>
-  <footer style="margin-top: 3em; font-size: 0.9em; text-align: center; color: #666;">
-    🛠️ Un projet open source créé avec 💻 & ☕ par <strong>Siegfried Sekkai</strong><br>
-    Code source dispo ici → <a href="https://github.com/5136Siegfried/jobtracker-devops" target="_blank">github.com/5136Siegfried/jobtracker-devops</a>
-  </footer>
+{% extends "base.html" %}
+{% block title %}Candidatures – JobTracker{% endblock %}
+{% block content %}
 
-</html>
+<div class="page-header">
+  <h1 class="page-title">
+    <span class="title-line">◧ CANDIDATURES</span>
+    <span class="title-sub">// {{ candidatures|length }} résultats</span>
+  </h1>
+  <a href="{{ url_for('form') }}" class="btn-primary">✦ Nouvelle</a>
+</div>
+
+<!-- FILTRES -->
+<div class="filters-bar">
+  <form method="get" class="filters-form">
+    <div class="filter-group">
+      <label class="filter-label">ÉTAT</label>
+      <select name="etat" class="filter-select" onchange="this.form.submit()">
+        <option value="">-- tous --</option>
+        {% for e in etats %}
+        <option value="{{ e }}" {% if etat_filter == e %}selected{% endif %}>{{ e | replace('_',' ') }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">CONTRAT</label>
+      <select name="contrat" class="filter-select" onchange="this.form.submit()">
+        <option value="">-- tous --</option>
+        {% for c in contrats %}
+        <option value="{{ c }}" {% if contrat_filter == c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">TRI</label>
+      <select name="sort" class="filter-select" onchange="this.form.submit()">
+        <option value="date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Date ↓</option>
+        <option value="date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Date ↑</option>
+        <option value="score_desc" {% if sort == 'score_desc' %}selected{% endif %}>Intérêt</option>
+        <option value="entreprise" {% if sort == 'entreprise' %}selected{% endif %}>Entreprise</option>
+      </select>
+    </div>
+    {% if etat_filter or contrat_filter %}
+    <a href="{{ url_for('list_candidatures') }}" class="btn-ghost-sm">× reset</a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- TABLE -->
+{% if candidatures %}
+<section class="card card--table">
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Entreprise</th>
+          <th>Poste</th>
+          <th>Date</th>
+          <th>Contrat</th>
+          <th>Télétravail</th>
+          <th>Score</th>
+          <th>Deadline</th>
+          <th>État</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in candidatures %}
+        <tr class="{% if c.deadline_depassee and c.etat not in ['refuse','accepte'] %}row-overdue{% elif c.deadline_urgente %}row-urgent{% endif %}">
+          <td>
+            <a href="{{ url_for('detail', cid=c.id) }}" class="table-link">{{ c.entreprise }}</a>
+          </td>
+          <td class="text-muted">{{ c.poste }}</td>
+          <td class="mono">{{ c.date_candidature.strftime('%d/%m/%y') }}</td>
+          <td>
+            {% if c.type_contrat %}
+            <span class="tag">{{ c.type_contrat }}</span>
+            {% endif %}
+          </td>
+          <td class="text-muted">{{ c.teletravail or '–' }}</td>
+          <td>
+            <span class="score-pill">{{ c.score_global }}</span>
+          </td>
+          <td class="mono">
+            {% if c.prochaine_deadline %}
+              <span class="{% if c.deadline_depassee %}text-overdue{% elif c.deadline_urgente %}text-urgent{% endif %}">
+                {{ c.prochaine_deadline.strftime('%d/%m/%y') }}
+                {% if c.deadline_depassee %}⚠{% elif c.deadline_urgente %}⚡{% endif %}
+              </span>
+            {% else %}–{% endif %}
+          </td>
+          <td>
+            <select class="etat-select etat-select--sm" data-cid="{{ c.id }}">
+              {% for e in etats %}
+              <option value="{{ e }}" {% if c.etat == e %}selected{% endif %}>{{ e | replace('_',' ') }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td>
+            <div class="action-btns">
+              <a href="{{ url_for('edit', cid=c.id) }}" class="btn-icon" title="Éditer">✎</a>
+              <form method="post" action="{{ url_for('delete', cid=c.id) }}" onsubmit="return confirm('Supprimer {{ c.entreprise }} ?')">
+                <button type="submit" class="btn-icon btn-icon--danger" title="Supprimer">✕</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% else %}
+<div class="empty-state">
+  <p class="empty-icon">◈</p>
+  <p>Aucune candidature trouvée. <a href="{{ url_for('form') }}">Ajouter →</a></p>
+</div>
+{% endif %}
+
+{% endblock %}
